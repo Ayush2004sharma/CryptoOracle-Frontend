@@ -31,6 +31,8 @@ import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useRouter } from "next/navigation";
 import { COIN_CONFIG, SupportedCoin } from "@/lib/coins";
+import AnalysisControls from "@/components/AnalysisControls"
+import TradingViewChart from "./TradingViewChart";
 
 // Define API response type based on requirements
 type AnalysisResult = {
@@ -162,124 +164,31 @@ export function CryptoDashboard({ coin, setCoin }: DashboardProps) {
       variants={containerVariants}
       className="max-w-7xl mx-auto px-4 py-6 md:px-8 lg:py-10"
     >
-      <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/10"
-          >
-            <ShieldCheck className="w-7 h-7" />
-          </motion.div>
-          <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-primary">
-              CryptoOracle
-            </h1>
-            <p className="text-muted-foreground font-medium">
-              Professional AI Analysis Terminal
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3 bg-secondary/30 p-1.5 rounded-xl border border-border/40">
-          <ThemeToggle />
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleLogout}
-            className="font-semibold hover:bg-background transition-all"
-          >
-            Logout
-          </Button>
-        </div>
-      </header>
 
-      <section className="mb-10">
-        <Card className="border-border/40 shadow-xl shadow-black/[0.02] dark:shadow-white/[0.01] bg-card/60 backdrop-blur-md">
-          <CardContent className="pt-6">
-            <form
-              onSubmit={handleAnalyze}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-end"
-            >
-              {/* Select fields updated with better styling ... */}
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-1">
-                  Cryptocurrency
-                </label>
-                <Select
-                  value={coin}
-                  onValueChange={(v) => setCoin(v as SupportedCoin)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Asset" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(COIN_CONFIG).map(([key, c]) => (
-                      <SelectItem key={key} value={key}>
-                        {c.label} ({c.short})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+<div className="grid grid-cols-[260px_1fr] gap-10 items-start">
+  
+  {/* LEFT: Analysis Controls */}
+  <AnalysisControls
+    coin={coin}
+    setCoin={setCoin}
+    profile={profile}
+    setProfile={setProfile}
+    duration={duration}
+    setDuration={setDuration}
+    loading={loading}
+    onAnalyze={handleAnalyze}
+  />
 
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-1">
-                  Investor Profile
-                </label>
-                <Select value={profile} onValueChange={setProfile}>
-                  <SelectTrigger className="bg-background/80 border-border/60 hover:border-primary/30 transition-colors">
-                    <SelectValue placeholder="Profile" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="new_buyer">New Investor</SelectItem>
-                    <SelectItem value="existing_buyer">
-                      Existing Holder
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+  {/* RIGHT: MAIN INTERACTIVE CHART */}
+  <div className="relative rounded-2xl border border-border bg-card/60 backdrop-blur-md">
 
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-1">
-                  Duration
-                </label>
-                <Select value={duration} onValueChange={setDuration}>
-                  <SelectTrigger className="bg-background/80 border-border/60 hover:border-primary/30 transition-colors">
-                    <SelectValue placeholder="Horizon" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="short_term">Short Term</SelectItem>
-                    <SelectItem value="medium_term">Medium Term</SelectItem>
-                    <SelectItem value="long_term">Long Term</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+    <TradingViewChart
+      symbol={COIN_CONFIG[coin].tv}
+      height={420}
+    />
 
-              <motion.div
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Button
-                  type="submit"
-                  className="w-full h-11 text-base font-bold shadow-lg shadow-primary/10 transition-all"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Synthesizing...
-                    </>
-                  ) : (
-                    <>
-                      Run Analysis
-                      <ChevronRight className="ml-2 h-4 w-4" />
-                    </>
-                  )}
-                </Button>
-              </motion.div>
-            </form>
-          </CardContent>
-        </Card>
-      </section>
+  </div>
+</div>
 
       <AnimatePresence mode="wait">
         {loading && (
